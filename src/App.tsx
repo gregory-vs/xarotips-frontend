@@ -1,66 +1,93 @@
-import React from 'react';
-import { Breadcrumb, Layout, Menu, theme } from 'antd';
+import React, { useState, useEffect } from "react";
+import { Layout, Menu, theme } from "antd";
+import BetTable from "./components/BetTable";
+import Graphic from "./components/Graphic";
+import { getTeams } from "./services/teamService";
+import { Team } from "./types/Team";
+import NewBetDrawer from "./components/NewBetDrawer";
 
 const { Header, Content, Footer } = Layout;
 
-// Tipando os itens do menu
-interface MenuItem {
-  key: string;
-  label: React.ReactNode;
-}
-
-const items: MenuItem[] = Array.from({ length: 3 }).map((_, index) => ({
-  key: String(index + 1),
-  label: `nav ${index + 1}`,
-}));
-
 const App: React.FC = () => {
+  const [selectedKey, setSelectedKey] = useState("1");
+  const [teams, setTeams] = useState<Team[]>([]);
+  const [error, setError] = useState<Error | null>(null);
   const {
     token: { colorBgContainer, borderRadiusLG },
   } = theme.useToken();
 
+  const renderContent = () => {
+    switch (selectedKey) {
+      case "1":
+        return <BetTable />;
+      case "2":
+        return <Graphic />;
+      default:
+        return <BetTable />;
+    }
+  };
+
+  const fetchData = async () => {
+    getTeams()
+      .then((response) => {
+        setTeams(response.data);
+        console.log(response.data);
+      })
+      .catch((error) => setError(error));
+  };
+
+  useEffect(() => {
+    fetchData();
+  }, []);
+
   return (
-    <Layout>
-      <Header
-        style={{
-          position: 'sticky',
-          top: 0,
-          zIndex: 1,
-          width: '100%',
-          display: 'flex',
-          alignItems: 'center',
-        }}
+    <>
+      <Layout
+        style={{ minHeight: "100vh", display: "flex", flexDirection: "column" }}
       >
-        <div className="demo-logo" />
-        <Menu
-          theme="dark"
-          mode="horizontal"
-          defaultSelectedKeys={['2']}
-          items={items}
-          style={{ flex: 1, minWidth: 0 }}
-        />
-      </Header>
-      <Content style={{ padding: '0 48px' }}>
-        <Breadcrumb style={{ margin: '16px 0' }}>
-          <Breadcrumb.Item>Home</Breadcrumb.Item>
-          <Breadcrumb.Item>List</Breadcrumb.Item>
-          <Breadcrumb.Item>App</Breadcrumb.Item>
-        </Breadcrumb>
-        <div
+        <Header
           style={{
-            padding: 24,
-            minHeight: 380,
-            background: colorBgContainer,
-            borderRadius: borderRadiusLG,
+            position: "sticky",
+            top: 0,
+            zIndex: 1,
+            width: "100%",
+            display: "flex",
+            alignItems: "center",
           }}
         >
-          Content
-        </div>
-      </Content>
-      <Footer style={{ textAlign: 'center' }}>
-        Ant Design ©{new Date().getFullYear()} Created by Ant UED
-      </Footer>
-    </Layout>
+          <div className="demo-logo" />
+          <Menu
+            theme="dark"
+            mode="horizontal"
+            selectedKeys={[selectedKey]}
+            onClick={(e) => setSelectedKey(e.key)}
+            items={[
+              { key: "1", label: "Bet" },
+              { key: "2", label: "Gráfico" },
+            ]}
+            style={{ flex: 1, minWidth: 0 }}
+          />
+        </Header>
+        <Content style={{ padding: "0 48px" }}>
+          <br />
+          <div
+            style={{
+              padding: 24,
+              minHeight: 380,
+              background: colorBgContainer,
+              borderRadius: borderRadiusLG,
+            }}
+          >
+            {renderContent()}
+          </div>
+        </Content>
+        <Footer style={{ textAlign: "center" }}>
+          Ant Design ©{new Date().getFullYear()} Created by Ant UED
+        </Footer>
+      </Layout>
+
+      <NewBetDrawer openDrawer={true} />
+    </>
   );
 };
 
