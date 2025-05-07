@@ -1,12 +1,16 @@
 import React, { useState } from "react";
 import { Drawer, Form, Input, Select, Space, Button } from "antd";
+import { Team } from "../types/Team";
+import { getPlayersByTeam } from "../services/playerService";
 const { Option } = Select;
 
 interface Props {
   openDrawer: boolean;
+  teamList: Team[];
 }
 
 const NewBetDrawer: React.FC<Props> = (props: Props) => {
+  const [playerList, setPlayerList] = useState<any>([])
   const [form] = Form.useForm();
 
   const layout = {
@@ -22,27 +26,9 @@ const NewBetDrawer: React.FC<Props> = (props: Props) => {
     console.log(values);
   };
 
-  const onReset = () => {
-    form.resetFields();
-  };
-
-  const onFill = () => {
-    form.setFieldsValue({ note: 'Hello world!', gender: 'male' });
-  };
-
-  const onGenderChange = (value: string) => {
-    switch (value) {
-      case "male":
-        form.setFieldsValue({ note: "Hi, man!" });
-        break;
-      case "female":
-        form.setFieldsValue({ note: "Hi, lady!" });
-        break;
-      case "other":
-        form.setFieldsValue({ note: "Hi there!" });
-        break;
-      default:
-    }
+  const onTeamChange = async (value: number) => {
+    const playerListResponse = await getPlayersByTeam(value);
+    setPlayerList(playerListResponse)
   };
 
   return (
@@ -54,49 +40,31 @@ const NewBetDrawer: React.FC<Props> = (props: Props) => {
         onFinish={onFinish}
         style={{ maxWidth: 600 }}
       >
-        <Form.Item name="note" label="Note" rules={[{ required: true }]}>
-          <Input />
-        </Form.Item>
-        <Form.Item name="gender" label="Gender" rules={[{ required: true }]}>
+        <Form.Item name="team" label="Selecione o Time" rules={[{ required: true }]}>
           <Select
-            placeholder="Select a option and change input text above"
-            onChange={onGenderChange}
-            allowClear
+            placeholder="Selecione o time"
+            onChange={onTeamChange}
+            options={props.teamList}
           >
-            <Option value="male">male</Option>
-            <Option value="female">female</Option>
-            <Option value="other">other</Option>
           </Select>
         </Form.Item>
-        <Form.Item
-          noStyle
-          shouldUpdate={(prevValues, currentValues) =>
-            prevValues.gender !== currentValues.gender
-          }
-        >
-          {({ getFieldValue }) =>
-            getFieldValue("gender") === "other" ? (
-              <Form.Item
-                name="customizeGender"
-                label="Customize Gender"
-                rules={[{ required: true }]}
-              >
-                <Input />
-              </Form.Item>
-            ) : null
-          }
+        <Form.Item name="player" label="Selecione o jogador" rules={[{ required: true }]}>
+          <Select
+            placeholder="Selecione o jogador"
+            onChange={onTeamChange}
+            options={playerList}
+          >
+          </Select>
+        </Form.Item>
+        <Form.Item name="value" label="Qual a pontuação?" rules={[{ required: true }]}>
+          <Input />
         </Form.Item>
         <Form.Item {...tailLayout}>
           <Space>
             <Button type="primary" htmlType="submit">
-              Submit
+              Enviar
             </Button>
-            <Button htmlType="button" onClick={onReset}>
-              Reset
-            </Button>
-            <Button type="link" htmlType="button" onClick={onFill}>
-              Fill form
-            </Button>
+
           </Space>
         </Form.Item>
       </Form>

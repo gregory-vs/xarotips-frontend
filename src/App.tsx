@@ -31,7 +31,6 @@ const App: React.FC = () => {
     getTeams()
       .then((response) => {
         setTeams(response.data);
-        console.log(response.data);
       })
       .catch((error) => setError(error));
   };
@@ -86,7 +85,7 @@ const App: React.FC = () => {
         </Footer>
       </Layout>
 
-      <NewBetDrawer openDrawer={true} />
+      <NewBetDrawer openDrawer={true} teamList={teams}/>
     </>
   );
 };
