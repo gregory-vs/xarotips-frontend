@@ -1,17 +1,12 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { Layout, Menu, theme } from "antd";
 import BetTable from "./components/BetTable";
 import Graphic from "./components/Graphic";
-import { getTeams } from "./services/teamService";
-import { Team } from "./types/Team";
-import NewBetDrawer from "./components/NewBetDrawer";
 
 const { Header, Content, Footer } = Layout;
 
 const App: React.FC = () => {
   const [selectedKey, setSelectedKey] = useState("1");
-  const [teams, setTeams] = useState<Team[]>([]);
-  const [error, setError] = useState<Error | null>(null);
   const {
     token: { colorBgContainer, borderRadiusLG },
   } = theme.useToken();
@@ -26,18 +21,6 @@ const App: React.FC = () => {
         return <BetTable />;
     }
   };
-
-  const fetchData = async () => {
-    getTeams()
-      .then((response) => {
-        setTeams(response.data);
-      })
-      .catch((error) => setError(error));
-  };
-
-  useEffect(() => {
-    fetchData();
-  }, []);
 
   return (
     <>
@@ -81,11 +64,9 @@ const App: React.FC = () => {
           </div>
         </Content>
         <Footer style={{ textAlign: "center" }}>
-          Ant Design ©{new Date().getFullYear()} Created by Ant UED
+          Thales Vasconcelos ©{new Date().getFullYear()} Created by T9 LABS - V1.0.0
         </Footer>
       </Layout>
-
-      <NewBetDrawer openDrawer={true} teamList={teams}/>
     </>
   );
 };

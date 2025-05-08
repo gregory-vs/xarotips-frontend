@@ -1,4 +1,4 @@
 import api from './api';
-import { Team } from '../types/Team';
+import { OptionType } from '../types/OptionType';
 
-export const getTeams = async () => api.get<Team[]>('/team/all-db');
+export const getTeams = async () => api.get<OptionType[]>('/team/all-db');
